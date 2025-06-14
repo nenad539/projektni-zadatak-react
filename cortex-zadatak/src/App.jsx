@@ -1,20 +1,21 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/home';
-import GamePage from './pages/gamePage';
-import AddGame from './pages/addGame';
-import EditGame from './pages/editGame';
-import { GameProvider } from './context/gameContext';
+import GameProvider from './context/gameContext';
+import Home from './pages/Home';
+import GamePage from './pages/GamePage';
+import AddGame from './pages/AddGame';
+import EditGame from './pages/EditGame';
+import Navbar from './components/Navbar'; // Osnovna navigacija
 
 function App() {
   return (
     <GameProvider>
       <Router>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/game/:id" element={<GamePage />} />
           <Route path="/game/add" element={<AddGame />} />
           <Route path="/game/edit/:id" element={<EditGame />} />
-          <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </Router>
     </GameProvider>

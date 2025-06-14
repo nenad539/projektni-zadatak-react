@@ -1,53 +1,56 @@
 import { createContext, useState, useEffect } from 'react';
 
+// 1. Kreiranje konteksta
 export const GameContext = createContext();
 
-export const GameProvider = ({ children }) => {
+// 2. Glavni provider komponenta
+const GameProvider = ({ children }) => {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Dohvati sve igre
+  // Dohvatanje igara sa API-ja
   const fetchGames = async () => {
-    setLoading(true);
     try {
-      const response = await fetch('https://dummyjson.com/products');
+      const response = await fetch('https://dummyjson.com/products?limit=10');
+      if (!response.ok) throw new Error('Network response was not ok');
       const data = await response.json();
       setGames(data.products);
-    } catch (error) {
-      console.error("Error fetching games:", error);
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Dodaj novu igru
-  const addGame = async (game) => {
+  // Dodavanje nove igre
+  const addGame = async (newGame) => {
     try {
       const response = await fetch('https://dummyjson.com/products/add', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(game)
+        body: JSON.stringify(newGame)
       });
-      const newGame = await response.json();
-      setGames([...games, newGame]);
-    } catch (error) {
-      console.error("Error adding game:", error);
+      const data = await response.json();
+      setGames([...games, data]);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Obriši igru
+  // Brisanje igre
   const deleteGame = async (id) => {
     try {
       await fetch(`https://dummyjson.com/products/${id}`, {
         method: 'DELETE'
       });
       setGames(games.filter(game => game.id !== id));
-    } catch (error) {
-      console.error("Error deleting game:", error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  // Ažuriraj igru
+  // Ažuriranje igre
   const updateGame = async (id, updatedGame) => {
     try {
       const response = await fetch(`https://dummyjson.com/products/${id}`, {
@@ -57,18 +60,32 @@ export const GameProvider = ({ children }) => {
       });
       const data = await response.json();
       setGames(games.map(game => game.id === id ? data : game));
-    } catch (error) {
-      console.error("Error updating game:", error);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
+  // Inicijalno učitavanje igara
   useEffect(() => {
     fetchGames();
   }, []);
 
+  // Vrednosti koje će biti dostupne u celoj aplikaciji
+  const value = {
+    games,
+    loading,
+    error,
+    addGame,
+    deleteGame,
+    updateGame
+  };
+
   return (
-    <GameContext.Provider value={{ games, loading, addGame, deleteGame, updateGame }}>
+    <GameContext.Provider value={value}>
       {children}
     </GameContext.Provider>
   );
 };
+
+// 3. Exportovanje providera kao default
+export default GameProvider;

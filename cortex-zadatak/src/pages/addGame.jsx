@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { GameContext } from '../context/gameContext';
+import  {GameContext } from '@/context/gameContext';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/main.css';
 

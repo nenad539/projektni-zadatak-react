@@ -1,6 +1,6 @@
 import { useParams, useLocation } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
-import { GameContext } from '../context/gameContext';
+import { GameContext } from '@/context/gameContext';
 
 const GamePage = () => {
   const { id } = useParams();
@@ -8,7 +8,8 @@ const GamePage = () => {
   const location = useLocation();
   
   // Prvo provjeri state, pa onda context
-  const game = location.state?.game || games?.find(g => g.id == id);
+  const game = locati
+  on.state?.game || games?.find(g => g.id == id);
 
   useEffect(() => {
     if (!game && games.length > 0) {
@@ -30,3 +31,4 @@ const GamePage = () => {
     </div>
   );
 };
+export default GamePage; 

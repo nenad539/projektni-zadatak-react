@@ -1,6 +1,6 @@
 import '/src/assets/styles/main.css'; 
 import { useContext } from 'react';
-import { GameContext } from '../context/GameContext';
+import { GameContext } from '@/context/GameContext';
 
 
 const Home = () => {
