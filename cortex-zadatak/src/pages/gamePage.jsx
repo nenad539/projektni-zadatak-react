@@ -1,34 +1,76 @@
-import { useParams, useLocation } from 'react-router-dom';
-import { useContext, useEffect } from 'react';
-import { GameContext } from '@/context/gameContext';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { GameContext } from '../context/gameContext';
 
 const GamePage = () => {
   const { id } = useParams();
-  const { games } = useContext(GameContext);
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { games, deleteGame } = useContext(GameContext);
   
-  // Prvo provjeri state, pa onda context
-  const game = locati
-  on.state?.game || games?.find(g => g.id == id);
+  // Pronalaženje igre po ID-u
+  const game = games.find(game => game.id.toString() === id);
 
-  useEffect(() => {
-    if (!game && games.length > 0) {
-      const foundGame = games.find(g => g.id == id);
-      if (!foundGame) {
-        console.log("Game not found");
-      }
+  const handleDelete = async () => {
+    if (window.confirm('Da li ste sigurni da želite da obrišete ovu igru?')) {
+      await deleteGame(id);
+      navigate('/');
     }
-  }, [games, id]);
+  };
 
-  if (!game) return <div>Loading or game not found...</div>;
+  if (!game) {
+    return <div className="loading">Igra nije pronađena</div>;
+  }
 
   return (
     <div className="game-details">
-      <h1>{game.title}</h1>
-      <img src={game.thumbnail} alt={game.title} />
-      <p>{game.description}</p>
-      <p>Price: €{game.price}</p>
+      <div className="game-header">
+        <h1>{game.title}</h1>
+        <div className="game-actions">
+          <button 
+            onClick={() => navigate(`/game/edit/${id}`)}
+            className="edit-btn"
+          >
+            Izmeni
+          </button>
+          <button 
+            onClick={handleDelete}
+            className="delete-btn"
+          >
+            Obriši
+          </button>
+        </div>
+      </div>
+
+      <div className="game-content">
+        <img 
+          src={game.thumbnail} 
+          alt={game.title} 
+          className="game-image"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/400x300?text=Slika+nije+dostupna';
+          }}
+        />
+        
+        <div className="game-info">
+          <p className="price">Cena: €{game.price.toFixed(2)}</p>
+          <p className="rating">Ocena: {game.rating}/5</p>
+          <p className="description">{game.description}</p>
+          
+          <div className="additional-info">
+            <p>Kategorija: {game.category}</p>
+            <p>Dostupnost: {game.stock > 0 ? 'Na stanju' : 'Nema na stanju'}</p>
+          </div>
+        </div>
+      </div>
+
+      <button 
+        onClick={() => navigate(-1)} 
+        className="back-btn"
+      >
+        Nazad na listu igara
+      </button>
     </div>
   );
 };
-export default GamePage; 
+
+export default GamePage;

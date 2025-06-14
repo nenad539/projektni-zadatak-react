@@ -1,23 +1,100 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-const GameItem = ({ game, deleteGame }) => {
-  const navigate = useNavigate();
+const GameItem = ({ game }) => {
+  // 1. Obrada cene
+  const price = typeof game?.price === 'number' 
+    ? game.price 
+    : parseFloat(game?.price) || 0;
+  const formattedPrice = `€${price.toFixed(2)}`;
 
-  const handleView = () => {
-    navigate(`/game/${game.id}`, { state: { game } }); // Proslijedite game kroz state
-    window.location.reload(); // Privremeno rješenje za osvježavanje
-  };
+  // 2. Obrada ID-a
+  const formattedId = game?.id ? `#${game.id}` : '#N/A';
+
+  // 3. Obrada naslova
+  const title = game?.title || 'Untitled Game';
+
+  // 4. Obrada opisa
+  const description = game?.description || 'No description available';
+  const shortDescription = description.length > 50 
+    ? `${description.substring(0, 50)}...` 
+    : description;
+
+  // 5. Obrada kategorije
+  const category = game?.category || 'uncategorized';
+  const formattedCategory = category.charAt(0).toUpperCase() + category.slice(1).toLowerCase();
+
+  // 6. Obrada zaliha
+  const stock = typeof game?.stock === 'number' 
+    ? game.stock 
+    : parseInt(game?.stock) || 0;
+  const stockStatus = stock > 100 
+    ? 'Hot' 
+    : stock > 0 
+      ? 'Available' 
+      : 'Sold out';
+  const stockClass = stockStatus.toLowerCase().replace(' ', '-');
+
+  // 7. Obrada slike
+  const thumbnail = game?.thumbnail || 'https://via.placeholder.com/300x200?text=No+Image';
 
   return (
-    <div className="game-card">
-      <img src={game.thumbnail} alt={game.title} />
-      <h3>{game.title}</h3>
-      <p>€{game.price}</p>
+    <div className="game-item">
+      <div className="game-id">{formattedId}</div>
+      <img 
+        src={thumbnail} 
+        alt={title} 
+        className="game-image"
+        onError={(e) => {
+          e.target.src = 'https://via.placeholder.com/300x200?text=Image+Error';
+        }}
+      />
+      <div className="game-info">
+        <h3 className="game-title">{title}</h3>
+        <p className="game-price">{formattedPrice}</p>
+        <p className="game-category">{formattedCategory}</p>
+        <p className={`game-stock ${stockClass}`}>{stockStatus}</p>
+        <p className="game-description">{shortDescription}</p>
+      </div>
       <div className="game-actions">
-        <button onClick={handleView} className="view-btn">View</button>
-        <button onClick={() => navigate(`/game/edit/${game.id}`)} className="edit-btn">Edit</button>
-        <button onClick={() => deleteGame(game.id)} className="delete-btn">Delete</button>
+        <Link to={`/game/${game?.id || ''}`} className="view-btn">
+          View
+        </Link>
+        <Link to={`/game/edit/${game?.id || ''}`} className="edit-btn">
+          Edit
+        </Link>
+        <button className="delete-btn">
+          Delete
+        </button>
       </div>
     </div>
   );
 };
+
+// Prop type validacija
+GameItem.propTypes = {
+  game: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    title: PropTypes.string,
+    price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    description: PropTypes.string,
+    category: PropTypes.string,
+    stock: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    thumbnail: PropTypes.string
+  }).isRequired
+};
+
+// Fallback vrednosti za props
+GameItem.defaultProps = {
+  game: {
+    id: 0,
+    title: 'Unknown Game',
+    price: 0,
+    description: '',
+    category: 'uncategorized',
+    stock: 0,
+    thumbnail: ''
+  }
+};
+
+export default GameItem;
