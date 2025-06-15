@@ -19,7 +19,9 @@ const AddGame = () => {
       await addGame({
         title: game.title,
         price: parseFloat(game.price),
-        thumbnail: game.thumbnail || 'https://via.placeholder.com/300x200?text=No+Image',
+        images: [
+        game.thumbnail || 'https://via.placeholder.com/300x200?text=No+Image',
+        'https://via.placeholder.com/300x200?text=Fallback+Image' ],
         description: game.description,
         rating: 0,
         stock: 100

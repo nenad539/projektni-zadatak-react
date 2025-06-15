@@ -42,14 +42,14 @@ const GamePage = () => {
       </div>
 
       <div className="game-content">
-        <img 
-          src={game.thumbnail} 
-          alt={game.title} 
-          className="game-image"
-          onError={(e) => {
-            e.target.src = 'https://via.placeholder.com/400x300?text=Slika+nije+dostupna';
-          }}
-        />
+       <img 
+  src={game.images?.[0] || game.thumbnail || 'https://via.placeholder.com/400x300?text=No+Image'} 
+  alt={game.title} 
+  className="game-image"
+  onError={(e) => {
+    e.target.src = game.images?.[1] || 'https://via.placeholder.com/400x300?text=Image+Error';
+  }}
+/>
         
         <div className="game-info">
           <p className="price">Cena: €{game.price.toFixed(2)}</p>

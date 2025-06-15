@@ -36,7 +36,7 @@ const GameItem = ({ game }) => {
   const stockClass = stockStatus.toLowerCase().replace(' ', '-');
 
   // 7. Obrada slike
-  const thumbnail = game?.thumbnail || 'https://via.placeholder.com/300x200?text=No+Image';
+  const thumbnail = game?.images?.[0] || fallbackImage ;
 
   return (
     <div className="game-item">
@@ -46,7 +46,7 @@ const GameItem = ({ game }) => {
         alt={title} 
         className="game-image"
         onError={(e) => {
-          e.target.src = 'https://via.placeholder.com/300x200?text=Image+Error';
+          e.target.src = game?.images?.[1] || fallbackImage;
         }}
       />
       <div className="game-info">
@@ -80,7 +80,8 @@ GameItem.propTypes = {
     description: PropTypes.string,
     category: PropTypes.string,
     stock: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    thumbnail: PropTypes.string
+    thumbnail: PropTypes.string,
+     images: PropTypes.arrayOf(PropTypes.string)
   }).isRequired
 };
 
@@ -93,7 +94,8 @@ GameItem.defaultProps = {
     description: '',
     category: 'uncategorized',
     stock: 0,
-    thumbnail: ''
+    thumbnail: '',
+     images: []
   }
 };
 
