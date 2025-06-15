@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { GameContext } from '../context/gameContext';
+import { GamesContext } from '../context/gameContext';
 
 const Navbar = () => {
-  const { searchTerm, setSearchTerm } = useContext(GameContext);
+  const { searchTerm, setSearchTerm } = useContext(GamesContext);
   const navigate = useNavigate();
 
   const handleSearch = (e) => {

@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
-import { GameContext } from '../context/gameContext';
+import { GamesContext } from '../context/gameContext';
 
 const GameEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { games, updateGame } = useContext(GameContext);
+  const { games, updateGame } = useContext(GamesContext);
   
   // Pronalazak igre za izmenu
   const gameToEdit = games.find(game => game.id.toString() === id);

@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import  {GameContext } from '@/context/gameContext';
+import  {GamesContext } from '@/context/gameContext';
 import { useNavigate } from 'react-router-dom';
 import '../assets/styles/main.css';
 
@@ -10,7 +10,7 @@ const AddGame = () => {
     thumbnail: '',
     description: ''
   });
-  const { addGame } = useContext(GameContext);
+  const { addGame } = useContext(GamesContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {

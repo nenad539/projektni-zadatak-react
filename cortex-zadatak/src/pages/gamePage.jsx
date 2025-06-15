@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-import { GameContext } from '../context/gameContext';
+import { GamesContext } from '../context/gameContext';
 
 const GamePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { games, deleteGame } = useContext(GameContext);
+  const { games, deleteGame } = useContext(GamesContext);
   
   // Pronalaženje igre po ID-u
   const game = games.find(game => game.id.toString() === id);
