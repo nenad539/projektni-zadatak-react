@@ -1,68 +1,50 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useContext, useState, useEffect } from 'react';
-import { GamesContext } from '../context/gameContext';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useGames } from '../context/gameContext';
 
-const GameEdit = () => {
+const EditGame = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { games, updateGame } = useContext(GamesContext);
-  
-  // Pronalazak igre za izmenu
-  const gameToEdit = games.find(game => game.id.toString() === id);
-  
-  // Stanje za formu
-  const [formData, setFormData] = useState({
-    title: '',
-    price: '',
-    thumbnail: '',
-    description: ''
-  });
+  const { fetchGame, updateGame } = useGames();
+  const [gameData, setGameData] = useState(null);
 
-  // Popuni formu podacima igre kada se komponenta učita
   useEffect(() => {
-    if (gameToEdit) {
-      setFormData({
-        title: gameToEdit.title,
-        price: gameToEdit.price,
-        thumbnail: gameToEdit.thumbnail,
-        description: gameToEdit.description || ''
-      });
+    const game = fetchGame(parseInt(id));
+    if (game) {
+      setGameData(game);
+    } else {
+      navigate('/');
     }
-  }, [gameToEdit]);
+  }, [id]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  if (!gameData) return null;
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await updateGame(id, formData);
-      navigate(`/game/${id}`); // Vrati na detalje nakon izmene
-    } catch (error) {
-      console.error("Greška pri ažuriranju:", error);
-    }
+    updateGame(parseInt(id), {
+      ...gameData,
+      price: parseFloat(gameData.price),
+      stock: parseInt(gameData.stock),
+      rating: parseFloat(gameData.rating)
+    });
+    navigate('/');
   };
-
-  if (!gameToEdit) {
-    return <div>Učitavanje igre...</div>;
-  }
 
   return (
-    <div className="edit-game-container">
-      <h2>Izmeni igru: {gameToEdit.title}</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="main-content">
+      <div className="hero-section">
+        <h1 className="hero-title">Edit Game</h1>
+        <p className="hero-subtitle">Update game information</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="game-form">
         <div className="form-group">
           <label>Naziv:</label>
           <input
             type="text"
             name="title"
-            value={formData.title}
-            onChange={handleChange}
+            value={gameData.title}
+            onChange={(e) => setGameData({ ...gameData, title: e.target.value })}
             required
           />
         </div>
@@ -72,8 +54,8 @@ const GameEdit = () => {
           <input
             type="number"
             name="price"
-            value={formData.price}
-            onChange={handleChange}
+            value={gameData.price}
+            onChange={(e) => setGameData({ ...gameData, price: e.target.value })}
             step="0.01"
             min="0"
             required
@@ -85,8 +67,8 @@ const GameEdit = () => {
           <input
             type="url"
             name="thumbnail"
-            value={formData.thumbnail}
-            onChange={handleChange}
+            value={gameData.thumbnail}
+            onChange={(e) => setGameData({ ...gameData, thumbnail: e.target.value })}
             required
           />
         </div>
@@ -95,18 +77,18 @@ const GameEdit = () => {
           <label>Opis:</label>
           <textarea
             name="description"
-            value={formData.description}
-            onChange={handleChange}
+            value={gameData.description}
+            onChange={(e) => setGameData({ ...gameData, description: e.target.value })}
             rows="5"
           />
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="save-btn">Sačuvaj izmene</button>
+          <button type="submit" className="nav-btn add-btn">Sačuvaj izmene</button>
           <button 
             type="button" 
-            className="cancel-btn"
-            onClick={() => navigate(`/game/${id}`)}
+            onClick={() => navigate('/')} 
+            className="nav-btn library-btn"
           >
             Odustani
           </button>
@@ -116,4 +98,4 @@ const GameEdit = () => {
   );
 };
 
-export default GameEdit;
+export default EditGame;

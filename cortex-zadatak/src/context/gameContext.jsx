@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const GamesContext = createContext();
 
@@ -207,26 +207,81 @@ export const GamesProvider = ({ children }) => {
       images: ['https://i.pinimg.com/736x/bb/ab/9a/bbab9a5791c9d9e3dc9c6dd33e682bb4.jpg', fallbackImage], stock: 250
     }
   ];
-  const [games, setGames] = useState(initialGames);
-  const [categories] = useState(['action', 'sports', 'horror', 'story']);
-  const [loading] = useState(false);
-  const [error] = useState(null);
-
-  // Game management functions
-  const fetchGame = (id) => games.find(game => game.id === id);
-  
-  const searchGames = (query) => 
-    games.filter(game => game.title.toLowerCase().includes(query.toLowerCase()));
-  
+   const [categories] = useState([
+    'action',
+    'adventure',
+    'rpg',
+    'fps',
+    'sports',
+    'racing',
+    'simulation',
+    'strategy',
+    'horror',
+    'moba',
+    'battle-royale'
+  ]);
   const sortGames = (sortBy, order = 'asc') => {
-    const sorted = [...games].sort((a, b) => 
-      order === 'asc' ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]);
+    const sorted = [...games].sort((a, b) => {
+      if (sortBy === 'price') {
+        return order === 'asc' ? a.price - b.price : b.price - a.price;
+      }
+      if (sortBy === 'rating') {
+        return order === 'asc' ? a.rating - b.rating : b.rating - a.rating;
+      }
+      // Default sorting by title
+      return order === 'asc' 
+        ? a.title.localeCompare(b.title) 
+        : b.title.localeCompare(a.title);
+    });
     setGames(sorted);
   };
+   const fetchGamesByCategory = (category) => {
+    if (!category) {
+      setGames(allGames);
+      return;
+    }
+    const filtered = allGames.filter(game => game.category === category);
+    setGames(filtered);
+  };
+  const [allGames] = useState(initialGames);
+  const [games, setGames] = useState(initialGames);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+   const [filteredGames, setFilteredGames] = useState(initialGames);
+  const [loading, setLoading] = useState(false); // Add this line
+  const [error, setError] = useState(null); // Add error state if needed
+   const fetchGame = (id) => {
+    return games.find(game => game.id === parseInt(id));
+  };
 
-  const fetchGamesByCategory = (category) => 
-    games.filter(game => game.category === category);
+  // Combined filter effect
+  useEffect(() => {
+    let result = [...allGames];
+    
+    if (searchQuery) {
+      result = result.filter(game => 
+        game.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    if (selectedCategory) {
+      result = result.filter(game => 
+        game.category === selectedCategory
+      );
+    }
+    
+    setFilteredGames(result);
+  }, [searchQuery, selectedCategory, allGames]);
 
+  // Function to handle category selection
+  const selectCategory = (category) => {
+    setSelectedCategory(category);
+  };
+
+  // Function to handle search
+  const searchGames = (query) => {
+    setSearchQuery(query);
+  };
   const addGame = (gameData) => {
     const newGame = { ...gameData, id: Math.max(...games.map(g => g.id)) + 1 };
     setGames([...games, newGame]);
@@ -278,3 +333,43 @@ export const useGames = () => {
 };
 
 export { GamesContext };
+
+const SearchBar = () => {
+  const { searchGames } = useGames();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    searchGames(value);
+  };
+
+  return (
+    <input
+      type="text"
+      value={searchTerm}
+      onChange={handleSearch}
+      placeholder="Search games..."
+      className="search-bar"
+    />
+  );
+};
+
+const CategoryFilter = () => {
+  const { games, fetchGamesByCategory } = useGames();
+  
+  const uniqueCategories = [...new Set(games.map(game => game.category))];
+
+  return (
+    <div className="category-filter">
+      <select onChange={(e) => fetchGamesByCategory(e.target.value)}>
+        <option value="">All Categories</option>
+        {uniqueCategories.map(category => (
+          <option key={category} value={category}>
+            {category.charAt(0).toUpperCase() + category.slice(1)}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};

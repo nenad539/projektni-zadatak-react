@@ -1,74 +1,100 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { GamesContext } from '../context/gameContext';
+import { useGames } from '../context/gameContext';
 
 const GamePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { games, deleteGame } = useContext(GamesContext);
-  
-  // Pronalaženje igre po ID-u
-  const game = games.find(game => game.id.toString() === id);
+  const { fetchGame, deleteGame } = useGames();
+  const game = fetchGame(parseInt(id));
 
-  const handleDelete = async () => {
-    if (window.confirm('Da li ste sigurni da želite da obrišete ovu igru?')) {
-      await deleteGame(id);
+  if (!game) {
+    return (
+      <div className="main-content">
+        <div className="no-games">
+          <h3>Game not found</h3>
+          <p>The game you're looking for doesn't exist.</p>
+          <button 
+            onClick={() => navigate('/')} 
+            className="nav-btn library-btn"
+          >
+            Back to Games
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this game?')) {
+      deleteGame(parseInt(id));
       navigate('/');
     }
   };
 
-  if (!game) {
-    return <div className="loading">Igra nije pronađena</div>;
-  }
-
   return (
-    <div className="game-details">
-      <div className="game-header">
-        <h1>{game.title}</h1>
-        <div className="game-actions">
-          <button 
-            onClick={() => navigate(`/game/edit/${id}`)}
-            className="edit-btn"
-          >
-            Izmeni
-          </button>
-          <button 
-            onClick={handleDelete}
-            className="delete-btn"
-          >
-            Obriši
-          </button>
+    <div className="main-content">
+      <div className="game-detail">
+        <div className="game-image-container">
+          <img 
+            src={game.images[0]} 
+            alt={game.title}
+            className="game-image"
+            onError={(e) => {
+              e.target.src = game.images[1];
+            }}
+          />
         </div>
-      </div>
 
-      <div className="game-content">
-       <img 
-  src={game.images?.[0] || game.thumbnail || 'https://via.placeholder.com/400x300?text=No+Image'} 
-  alt={game.title} 
-  className="game-image"
-  onError={(e) => {
-    e.target.src = game.images?.[1] || 'https://via.placeholder.com/400x300?text=Image+Error';
-  }}
-/>
-        
         <div className="game-info">
-          <p className="price">Cena: €{game.price.toFixed(2)}</p>
-          <p className="rating">Ocena: {game.rating}/5</p>
-          <p className="description">{game.description}</p>
-          
-          <div className="additional-info">
-            <p>Kategorija: {game.category}</p>
-            <p>Dostupnost: {game.stock > 0 ? 'Na stanju' : 'Nema na stanju'}</p>
+          <div className="game-header">
+            <h1 className="game-title">{game.title}</h1>
+            <span className="game-category-badge">{game.category}</span>
+          </div>
+
+          <div className="game-rating">
+            <div className="stars-container">
+              {"★".repeat(Math.floor(game.rating))}
+              {"☆".repeat(5 - Math.floor(game.rating))}
+            </div>
+            <span className="rating-number">{game.rating}</span>
+          </div>
+
+          <div className="game-price-container">
+            <span className="game-price">
+              {game.price === 0 ? 'Free to Play' : `$${game.price.toFixed(2)}`}
+            </span>
+          </div>
+
+          <div className="stock-container">
+            <span className={`game-stock ${game.stock > 100 ? 'hot' : game.stock > 0 ? 'available' : 'sold-out'}`}>
+              {game.stock} in stock
+            </span>
+          </div>
+
+          <p className="game-description">{game.description}</p>
+
+          <div className="game-actions">
+            <button 
+              onClick={() => navigate(`/edit-game/${id}`)} 
+              className="action-btn edit-btn"
+            >
+              Edit Game
+            </button>
+            <button 
+              onClick={handleDelete} 
+              className="action-btn delete-btn"
+            >
+              Delete Game
+            </button>
+            <button 
+              onClick={() => navigate('/')} 
+              className="nav-btn library-btn"
+            >
+              Back to Games
+            </button>
           </div>
         </div>
       </div>
-
-      <button 
-        onClick={() => navigate(-1)} 
-        className="back-btn"
-      >
-        Nazad na listu igara
-      </button>
     </div>
   );
 };

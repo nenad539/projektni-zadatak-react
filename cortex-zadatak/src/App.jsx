@@ -1,21 +1,35 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/home';
-import Page2 from './pages/Page2';
+import { GamesProvider } from './context/gameContext';
+import Navbar from './components/navbar';
+import GameList from './components/gameList';
 import GamePage from './pages/gamePage';
 import AddGame from './pages/addGame';
 import EditGame from './pages/editGame';
+import SearchBar from './components/GameSearch';
+import CategoryFilter from './components/CategorySelector';
+import './assets/styles/main.css';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/page2" element={<Page2 />} />
-        <Route path="/game/:id" element={<GamePage />} />
-        <Route path="/game/add" element={<AddGame />} />
-        <Route path="/game/edit/:id" element={<EditGame />} />
-      </Routes>
-    </Router>
+    <GamesProvider>
+      <Router>
+        <div className="app">
+          <Navbar /> {/* Keep this navbar */}
+          <main className="main-content">
+            <div className="filters-container">
+              <SearchBar />
+              <CategoryFilter />
+            </div>
+            <Routes>
+              <Route path="/" element={<GameList />} />
+              <Route path="/game/:id" element={<GamePage />} />
+              <Route path="/add-game" element={<AddGame />} />
+              <Route path="/edit-game/:id" element={<EditGame />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </GamesProvider>
   );
 }
 
